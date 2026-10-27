@@ -4,8 +4,8 @@
 import { NextResponse } from "next/server";
 import { checkBasicAuth } from "./lib/basic-auth.js";
 
-export function middleware(req) {
-  const result = checkBasicAuth({
+export async function middleware(req) {
+  const result = await checkBasicAuth({
     header: req.headers.get("authorization"),
     user: process.env.BASIC_AUTH_USER,
     pass: process.env.BASIC_AUTH_PASSWORD,

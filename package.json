@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/security.test.mjs"
+    "test": "node --test tests/security.test.mjs"
   },
   "dependencies": {
     "next": "15.5.28",
