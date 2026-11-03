@@ -73,7 +73,11 @@ async function ocrViaApi(base64, mediaType) {
     body: JSON.stringify({ imageBase64: base64, mediaType }),
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data?.error || `サーバーエラー (HTTP ${res.status})`);
+  if (!res.ok) {
+    const err = new Error(data?.error || `サーバーエラー (HTTP ${res.status})`);
+    err.status = res.status;
+    throw err;
+  }
   const card = emptyCard();
   FIELDS.forEach((f) => { if (typeof data?.card?.[f.key] === "string") card[f.key] = data.card[f.key]; });
   return card;
@@ -153,7 +157,9 @@ export default function Page() {
       fileArr.map(async (file) => {
         const { base64, mediaType } = await prepareImage(file);
         try { return await ocrViaApi(base64, mediaType); }
-        catch {
+        catch (e) {
+          // 入力不備や回数制限（4xx）は再試行しても結果が変わらないため、そのまま失敗にする。
+          if (e?.status >= 400 && e.status < 500) throw e;
           await new Promise((r) => setTimeout(r, 1200));
           return ocrViaApi(base64, mediaType);
         }
